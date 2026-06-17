@@ -1,0 +1,4 @@
+name: medical_disclaimer
+version: v1.0
+content: |
+  以下内容仅基于设备数据观察，不构成医疗建议，请咨询执业宠物医师。

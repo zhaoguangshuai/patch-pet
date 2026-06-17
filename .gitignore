@@ -1,0 +1,44 @@
+# Ralph generated files (inside .ralph/ subfolder)
+.ralph
+.ralphrc
+
+# Ralph logs and generated docs
+.ralph/logs/*
+!.ralph/logs/.gitkeep
+.ralph/docs/generated/*
+!.ralph/docs/generated/.gitkeep
+
+# General logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+.temp/
+
+# Node modules (if using Node.js projects)
+node_modules/
+
+# Python cache (if using Python projects)
+__pycache__/
+*.pyc
+
+# Rust build (if using Rust projects)
+target/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files (contain secrets, never commit)
+.env
+.env.local
+.env.*.local
+
+# Ralph backup directories (created by migration)
+.ralph_backup_*

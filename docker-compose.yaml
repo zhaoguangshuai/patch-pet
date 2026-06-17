@@ -1,0 +1,69 @@
+# 帕奇宠 Agent 后端本地开发依赖服务
+# 使用方式：docker compose up -d
+# 停止：docker compose down
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: patchpet-pg
+    environment:
+      POSTGRES_USER: patchpet
+      POSTGRES_PASSWORD: patchpet_dev
+      POSTGRES_DB: patchpet
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U patchpet"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: patchpet-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  kafka:
+    image: bitnami/kafka:3.9
+    platform: linux/amd64
+    container_name: patchpet-kafka
+    environment:
+      KAFKA_CFG_NODE_ID: "1"
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://localhost:9092"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # 可选：Unleash 功能开关（默认不启动，需要时取消注释）
+  # unleash:
+  #   image: unleashorg/unleash-server:latest
+  #   container_name: patchpet-unleash
+  #   environment:
+  #     DATABASE_URL: postgres://patchpet:patchpet_dev@postgres:5432/unleash
+  #     UNLEASH_PORT: "4242"
+  #   ports:
+  #     - "4242:4242"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+
+volumes:
+  pgdata:

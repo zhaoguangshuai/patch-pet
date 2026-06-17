@@ -1,0 +1,36 @@
+# 灰度发布配置
+# 流量分配：5% → 20% → 50% → 100%
+# 每段观察 ≥ 2h，无 P0/P1 才放量
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: patch-pet-canary
+  namespace: patch-pet
+spec:
+  hosts:
+    - api-gateway
+  http:
+    - route:
+        - destination:
+            host: api-gateway
+            subset: stable
+          weight: 95
+        - destination:
+            host: api-gateway
+            subset: canary
+          weight: 5
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: api-gateway
+  namespace: patch-pet
+spec:
+  host: api-gateway
+  subsets:
+    - name: stable
+      labels:
+        version: stable
+    - name: canary
+      labels:
+        version: canary
